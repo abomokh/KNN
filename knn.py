@@ -1,5 +1,41 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import mode
+from sklearn.datasets import fetch_openml
+import numpy.random
+mnist = fetch_openml('mnist_784', as_frame=False)
+data = mnist['data']
+labels = mnist['target']
+idx = numpy.random.RandomState(0).choice(70000, 11000)
+train = data[idx[:10000], :].astype(int)
+train_labels = labels[idx[:10000]]
+test = data[idx[10000:], :].astype(int)
+test_labels = labels[idx[10000:]]
+
+def knn(train_images, train_labels, query_image, k):
+
+# Calculate Euclidean distances
+  distances = [(i,np.linalg.norm(train_images[i] - query_image),train_labels[i]) for i in range(len(train_images))]
+
+  # Sort distances in ascending order
+  sorted_distances = sorted(distances, key=lambda x: x[1])
+
+  # Select the k nearest neighbors
+  k_nearest_neighbors = sorted_distances[:k]
+
+  # Count labels freqency
+  label_freq = {}
+  for i in range(k):
+    label = k_nearest_neighbors[i][2]
+    if label in label_freq:
+      label_freq[label] += 1
+    else:
+      label_freq[label] = 1
+
+  # Get the most frequent label
+  most_frequent_label = max(label_freq, key=label_freq.get)
+
+  return most_frequent_label
 
 def run_knn(n=1000,k=10,prnt=False):
 
